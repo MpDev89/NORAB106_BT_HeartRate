@@ -1,0 +1,11 @@
+// C:/MPHome/1_Project/09_CustomPrj/NORAB106_BT_HeartRate/build/hci_rpmsg/zephyr/zephyr_pre0.elf
+digraph "Device dependency graph" {
+	42 [label="clock@41005000\nOrdinal: 42 | Handle: 1\n/soc/clock@41005000"]
+	55 [label="gpio@418c0800\nOrdinal: 55 | Handle: 2\n/soc/gpio@418c0800"]
+	7 [label="gpio@418c0500\nOrdinal: 7 | Handle: 3\n/soc/gpio@418c0500"]
+	52 [label="random@41009000\nOrdinal: 52 | Handle: 4\n/soc/random@41009000"]
+	66 [label="uart@41013000\nOrdinal: 66 | Handle: 5\n/soc/uart@41013000"]
+	20 [label="ipc0\nOrdinal: 20 | Handle: 6\n/ipc/ipc0"]
+	19 [label="mbox@41012000\nOrdinal: 19 | Handle: 7\n/soc/mbox@41012000"]
+	19 -> 20
+}

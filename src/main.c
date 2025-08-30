@@ -1,132 +1,71 @@
-/* main.c - Application main entry point */
-
-/*
- * Copyright (c) 2015-2016 Intel Corporation
+/******************************************************************************
  *
- * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2025 Marconatale Parise. All rights reserved.
+ *
+ * This file is part of proprietary software. Unauthorized copying, distribution,
+ * or modification of this file, via any medium, is strictly prohibited without
+ * prior written permission from the copyright holder.
+ *
+ *****************************************************************************/
+/**
+ * @file main.c
+ * @brief main function to initialize peripherals and provide threads for bluetooth 
+ * and peripheral handling
+ *
+ * This file contains the main function that initializes the peripherals and
+ * provides heartbeat and battery service over Bluetooth each 5 seconds or using dedicated 
+ * buttons.
+ * 
+ * @author Marconatale Parise
+ * @date 09 June 2025
+ *
  */
 
-#include <zephyr/types.h>
-#include <stddef.h>
-#include <string.h>
-#include <errno.h>
-#include <zephyr/sys/printk.h>
-#include <zephyr/sys/byteorder.h>
-#include <zephyr/kernel.h>
+#include "peripheral.h"
+#include "common.h"
 
-#include <zephyr/bluetooth/bluetooth.h>
-#include <zephyr/bluetooth/hci.h>
-#include <zephyr/bluetooth/conn.h>
-#include <zephyr/bluetooth/uuid.h>
-#include <zephyr/bluetooth/gatt.h>
-#include <zephyr/bluetooth/services/bas.h>
-#include <zephyr/bluetooth/services/hrs.h>
 
-static const struct bt_data ad[] = {
-	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
-	BT_DATA_BYTES(BT_DATA_UUID16_ALL,
-		      BT_UUID_16_ENCODE(BT_UUID_HRS_VAL),
-		      BT_UUID_16_ENCODE(BT_UUID_BAS_VAL),
-		      BT_UUID_16_ENCODE(BT_UUID_DIS_VAL))
-};
+/* size of stack area used by each thread */
+#define STACKSIZE 1024
+/* scheduling priority used by each thread */
+#define PRIORITY 7
+#define HIGH_PRIORITY 5
 
-static void connected(struct bt_conn *conn, uint8_t err)
-{
-	if (err) {
-		printk("Connection failed (err 0x%02x)\n", err);
-	} else {
-		printk("Connected\n");
-	}
+void main(void){
+	peripheral_init();
 }
 
-static void disconnected(struct bt_conn *conn, uint8_t reason)
-{
-	printk("Disconnected (reason 0x%02x)\n", reason);
+void bt_thread(void){
+	while(1){
+		bt_hrs_set();
+		bt_bas_set();
+		k_sleep(K_MSEC(5000));
+  }
 }
 
-BT_CONN_CB_DEFINE(conn_callbacks) = {
-	.connected = connected,
-	.disconnected = disconnected,
-};
-
-static void bt_ready(void)
-{
-	int err;
-
-	printk("Bluetooth initialized\n");
-
-	err = bt_le_adv_start(BT_LE_ADV_CONN_NAME, ad, ARRAY_SIZE(ad), NULL, 0);
-	if (err) {
-		printk("Advertising failed to start (err %d)\n", err);
-		return;
-	}
-
-	printk("Advertising successfully started\n");
+void bt_event_thread(void){
+	while(1){
+		 // Check if Button 1 is pressed
+		if(is_button1_pressed()){
+			bt_hrs_set();
+		}
+		// Check if Button 2 is pressed
+		if(is_button2_pressed()){
+			bt_bas_set();
+		}
+		k_sleep(K_MSEC(50));
+		
+  }
 }
 
-static void auth_cancel(struct bt_conn *conn)
-{
-	char addr[BT_ADDR_LE_STR_LEN];
-
-	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
-
-	printk("Pairing cancelled: %s\n", addr);
+void perip_thread(void){
+	while(1){
+		set_heart_rate_value();
+		set_battery_perc();
+		k_sleep(K_MSEC(100));
+  }
 }
 
-static struct bt_conn_auth_cb auth_cb_display = {
-	.cancel = auth_cancel,
-};
-
-static void bas_notify(void)
-{
-	uint8_t battery_level = bt_bas_get_battery_level();
-
-	battery_level--;
-
-	if (!battery_level) {
-		battery_level = 100U;
-	}
-
-	bt_bas_set_battery_level(battery_level);
-}
-
-static void hrs_notify(void)
-{
-	static uint8_t heartrate = 90U;
-
-	/* Heartrate measurements simulation */
-	heartrate++;
-	if (heartrate == 160U) {
-		heartrate = 90U;
-	}
-
-	bt_hrs_notify(heartrate);
-}
-
-void main(void)
-{
-	int err;
-
-	err = bt_enable(NULL);
-	if (err) {
-		printk("Bluetooth init failed (err %d)\n", err);
-		return;
-	}
-
-	bt_ready();
-
-	bt_conn_auth_cb_register(&auth_cb_display);
-
-	/* Implement notification. At the moment there is no suitable way
-	 * of starting delayed work so we do it here
-	 */
-	while (1) {
-		k_sleep(K_SECONDS(1));
-
-		/* Heartrate measurements simulation */
-		hrs_notify();
-
-		/* Battery level simulation */
-		bas_notify();
-	}
-}
+K_THREAD_DEFINE(bt_thread_id, STACKSIZE, bt_thread, NULL, NULL, NULL, PRIORITY, 0, 0);
+K_THREAD_DEFINE(bt_event_thread_id, STACKSIZE, bt_event_thread, NULL, NULL, NULL, HIGH_PRIORITY, 0, 0);
+K_THREAD_DEFINE(perip_thread_id, STACKSIZE, perip_thread, NULL, NULL, NULL,	PRIORITY, 0, 0);
