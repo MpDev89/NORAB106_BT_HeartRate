@@ -15,18 +15,18 @@ Embedded Application to demonstrate Bluetooth Heart Rate and battery simulation 
 - ✅ Abstraction layer to manage adc
 - ✅ Functions managed with threads for bluetooth and peripheral handling
 
-## 🔧 Requisiti
-- Microcontrollore: UBLOX NORAB106
+## 🔧 Requirements
+- Microcontroller: UBLOX NORAB106
 - Toolchain: VsCode + Extensions nRF Connect
 - Hardware:
   - Potentiometers x2
   - Main Board EVK-NORAB106
 - Programming Interface: USB-UART
 
-## 🛠️ Tecnologie utilizzate
-- Linguaggi: C
+## 🛠️ Technologies
+- Languages: C
 - Framework: ncs 2.2.0
-- Librerie: Zephyr
+- Libraries: Zephyr
 
 ## 🏗️ Hardware Setup
 Heart rate and battery are simulated using potentiometers (by adc peripheral) connected to the following pins: 
@@ -78,5 +78,5 @@ See the LICENSE file for details.
 
 ## 🌐 Contatti
 [![Email](https://img.shields.io/badge/mail-marconatale%20parise-blue)](mailto:mp@tech-in-mind.it)  
-[![LinkedIn](https://img.shields.io/badge/badge-marconatale%20parise-green)](https://www.linkedin.com/in/marconatale-parise-48a07b94)  
-[![GitHub](https://img.shields.io/badge/badge-Github-black)](https://github.com/MpDev89)
+[![LinkedIn](https://img.shields.io/badge/Linkedin-marconatale%20parise-blue)](https://www.linkedin.com/in/marconatale-parise-48a07b94)  
+[![GitHub](https://img.shields.io/badge/Account-Github-black)](https://github.com/MpDev89)
