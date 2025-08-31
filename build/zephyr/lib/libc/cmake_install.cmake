@@ -39,6 +39,6 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("C:/MPHome/1_Project/09_CustomPrj/NORAB106_BT_HeartRate/build/zephyr/lib/libc/minimal/cmake_install.cmake")
+  include("C:/MPHome/1_Project/09_CustomPrj/NORAB106_BT_HeartRate/build/zephyr/lib/libc/newlib/cmake_install.cmake")
 endif()
 
