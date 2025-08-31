@@ -54,7 +54,7 @@ Heart rate and battery are simulated using potentiometers (by adc peripheral) co
 ## 📦 Github Setup
 Clone the repository:
 ```bash
-git clone https://github.com/your-username/project-name.git
+git clone https://github.com/MpDev89/NORAB106_BT_HeartRate.git
 cd project-name
 ```
 
